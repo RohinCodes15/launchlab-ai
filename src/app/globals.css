@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #faf8f4;
+  --surface: #ffffff;
+  --raised: #f2eee6;
+  --fg: #1b1814;
+  --muted: #645d54;
+  --line: #e2dbcf;
+  --accent: #b93a0a;
+  --accent-fg: #ffffff;
+  --accent-soft: #fbe9df;
+  --danger: #b42318;
+  --ok: #1a6b43;
+  --warn: #8a5a00;
+  --warn-soft: #fdf3d7;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #131210;
+  --surface: #1c1a17;
+  --raised: #26231f;
+  --fg: #f3efe8;
+  --muted: #aaa399;
+  --line: #36322c;
+  --accent: #ff8a4c;
+  --accent-fg: #1b1009;
+  --accent-soft: #3a2216;
+  --danger: #ff8b7e;
+  --ok: #6fd3a0;
+  --warn: #f2c14e;
+  --warn-soft: #352b12;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+  --animate-rise: rise 0.4s ease-out both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Business Model Canvas: stacked on small screens, the classic layout on wide screens and paper. */
+.bmc {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px), print {
+  .bmc {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    grid-template-areas:
+      "kp kp ka ka vp vp cr cr cs cs"
+      "kp kp kr kr vp vp ch ch cs cs"
+      "co co co co co rs rs rs rs rs";
+  }
+  .bmc > [data-area="kp"] {
+    grid-area: kp;
+  }
+  .bmc > [data-area="ka"] {
+    grid-area: ka;
+  }
+  .bmc > [data-area="kr"] {
+    grid-area: kr;
+  }
+  .bmc > [data-area="vp"] {
+    grid-area: vp;
+  }
+  .bmc > [data-area="cr"] {
+    grid-area: cr;
+  }
+  .bmc > [data-area="ch"] {
+    grid-area: ch;
+  }
+  .bmc > [data-area="cs"] {
+    grid-area: cs;
+  }
+  .bmc > [data-area="co"] {
+    grid-area: co;
+  }
+  .bmc > [data-area="rs"] {
+    grid-area: rs;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+@page {
+  size: A4 landscape;
+  margin: 12mm;
+}
+
+@media print {
+  :root,
+  :root[data-theme="dark"] {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --raised: #f4f4f4;
+    --fg: #111111;
+    --muted: #444444;
+    --line: #bbbbbb;
+    --accent: #b93a0a;
+    --accent-soft: #ffffff;
+    color-scheme: light;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block;
+  }
+  .print-slide {
+    height: 180mm;
+    break-after: page;
+    break-inside: avoid;
+  }
+  .print-slide:last-child {
+    break-after: auto;
+  }
+}
