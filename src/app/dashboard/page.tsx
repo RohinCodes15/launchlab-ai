@@ -13,7 +13,7 @@ import {
   ProgressBar,
   inputClass,
 } from "@/components/ui";
-import { filterProjects, getProgress, type ProjectView } from "@/lib/projects";
+import { filterProjects, getProgress, toolSummary, type ProjectView } from "@/lib/projects";
 import {
   NAME_MAX,
   STATUSES,
@@ -120,6 +120,9 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: () => 
         </div>
         <ProgressBar percent={progress.percent} label={`${project.name} progress`} />
       </div>
+      {toolSummary(project).length > 0 && (
+        <p className="mt-3 text-xs text-muted">{toolSummary(project).join(" · ")}</p>
+      )}
       <div className="mt-4 flex flex-wrap gap-1 border-t border-line pt-3">
         <Button
           size="sm"

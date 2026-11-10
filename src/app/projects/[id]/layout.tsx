@@ -55,6 +55,15 @@ export default function ProjectLayout({ children }: { children: ReactNode }) {
     },
     { href: `${base}/pitch`, label: "Pitch", done: progress.hasPitch },
   ];
+  const tools = [
+    { href: `${base}/validation`, label: "Validation" },
+    { href: `${base}/personas`, label: "Personas" },
+    { href: `${base}/competitors`, label: "Competitors" },
+    { href: `${base}/finance`, label: "Finance" },
+    { href: `${base}/roadmap`, label: "Roadmap" },
+    { href: `${base}/practice`, label: "Practice" },
+    { href: `${base}/learn`, label: "Learn" },
+  ];
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
@@ -99,6 +108,21 @@ export default function ProjectLayout({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          <span aria-hidden className="mx-1 my-2 w-px shrink-0 bg-line" />
+          {tools.map((tool) => (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              aria-current={pathname === tool.href ? "page" : undefined}
+              className={`-mb-px shrink-0 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                pathname === tool.href
+                  ? "border-accent text-fg"
+                  : "border-transparent text-muted hover:text-fg"
+              }`}
+            >
+              {tool.label}
+            </Link>
+          ))}
         </nav>
       </div>
       <div className="py-8 print:py-0">{children}</div>

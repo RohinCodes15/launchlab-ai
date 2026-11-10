@@ -14,6 +14,11 @@
   --ok: #1a6b43;
   --warn: #8a5a00;
   --warn-soft: #fdf3d7;
+  /* Chart series: validated categorical palette, fixed order. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
   color-scheme: light;
 }
 
@@ -31,6 +36,10 @@
   --ok: #6fd3a0;
   --warn: #f2c14e;
   --warn-soft: #352b12;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
   color-scheme: dark;
 }
 

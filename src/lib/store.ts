@@ -1,9 +1,13 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { applyImport, type ImportMode } from "./backup";
 import { DEMO_PROJECT_INPUT } from "./demo";
+import { DEFAULT_SCENARIO } from "./finance";
 import { generateSlides } from "./pitch";
-import { duplicateProject, newProject, parseStored } from "./projects";
+import { draftPersona, suggestTasks } from "./planning";
+import { applyChange, duplicateProject, newProject, parseStored } from "./projects";
+import { suggestHypotheses } from "./validation";
 import type { NewProjectInput, Project } from "./schema";
 
 /**
@@ -11,6 +15,7 @@ import type { NewProjectInput, Project } from "./schema";
  * so nothing is sent to or stored on a server, and no one else can read or write them.
  */
 const KEY = "launchlab.projects.v1";
+const RECOVERY_KEY = `${KEY}.backup`;
 const EMPTY: Project[] = [];
 
 let cache: Project[] | null = null;
@@ -18,7 +23,7 @@ let saveFailed = false;
 const listeners = new Set<() => void>();
 
 const notify = () => listeners.forEach((listener) => listener());
-const newId = () => crypto.randomUUID();
+export const newId = () => crypto.randomUUID();
 const now = () => new Date().toISOString();
 
 function read(): Project[] {
@@ -33,7 +38,7 @@ function read(): Project[] {
   if (dropped > 0 && raw) {
     // Keep the unreadable original so a later save cannot destroy it.
     try {
-      localStorage.setItem(`${KEY}.backup`, raw);
+      localStorage.setItem(RECOVERY_KEY, raw);
     } catch {
       saveFailed = true;
     }
@@ -94,8 +99,13 @@ export function createProject(input: NewProjectInput): Project {
   return project;
 }
 
-export function updateProject(id: string, change: (project: Project) => Project) {
-  write(read().map((p) => (p.id === id ? { ...change(p), id, updatedAt: now() } : p)));
+/** Returns false, and saves nothing, when the change would produce an invalid project. */
+export function updateProject(id: string, change: (project: Project) => Project): boolean {
+  const current = read().find((p) => p.id === id);
+  const next = current && applyChange(current, change, now());
+  if (!next) return false;
+  write(read().map((p) => (p.id === id ? next : p)));
+  return true;
 }
 
 export function removeProject(id: string) {
@@ -110,10 +120,65 @@ export function copyProject(id: string): Project | undefined {
   return copy;
 }
 
+/** The demo ships with drafts and assumptions only: no invented interviews, responses or evidence. */
 export function addDemoProject(): Project {
   const base = newProject(DEMO_PROJECT_INPUT, newId(), now());
-  const demo = { ...base, ...DEMO_PROJECT_INPUT, isDemo: true };
-  const project = { ...demo, slides: generateSlides(demo, newId) };
+  const demo: Project = { ...base, ...DEMO_PROJECT_INPUT, isDemo: true };
+  const project: Project = {
+    ...demo,
+    slides: generateSlides(demo, newId),
+    validation: {
+      ...demo.validation,
+      hypotheses: suggestHypotheses(demo).map((draft) => ({
+        ...draft,
+        id: newId(),
+        priority: "medium",
+        confidence: 3,
+        status: "untested",
+      })),
+    },
+    finance: { scenarios: [{ ...DEFAULT_SCENARIO, id: newId(), name: "School pilot" }] },
+    personas: [{ ...draftPersona(demo), id: newId() }],
+    roadmap: {
+      ...demo.roadmap,
+      tasks: suggestTasks(demo).map((title) => ({
+        id: newId(),
+        title,
+        source: "suggested",
+        impact: 3,
+        effort: 3,
+        status: "backlog",
+        milestoneId: "",
+        dependsOn: "",
+      })),
+    },
+  };
   write([project, ...read()]);
   return project;
+}
+
+export function importProjects(incoming: Project[], mode: ImportMode) {
+  write(applyImport(read(), incoming, mode, newId));
+}
+
+/** The original stored text, kept when some saved projects could not be read. */
+export function readRecoveryCopy(): string | null {
+  try {
+    return localStorage.getItem(RECOVERY_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function useRecoveryCopy(): string | null {
+  return useSyncExternalStore(subscribe, readRecoveryCopy, () => null);
+}
+
+export function clearRecoveryCopy() {
+  try {
+    localStorage.removeItem(RECOVERY_KEY);
+  } catch {
+    // Nothing to clear if storage is unavailable.
+  }
+  notify();
 }

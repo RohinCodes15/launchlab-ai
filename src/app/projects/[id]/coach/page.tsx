@@ -5,9 +5,9 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Badge, Button, EmptyState, Field, buttonClass, inputClass } from "@/components/ui";
 import { useCurrentProject } from "@/components/use-current-project";
 import type { AiStatus } from "@/lib/ai";
+import { postCoach, sourceLabel } from "@/lib/coach-client";
 import {
   QUESTION_MAX,
-  coachResponseSchema,
   type Answer,
   type FeedbackEntry,
   type Project,
@@ -17,41 +17,17 @@ import { updateProject } from "@/lib/store";
 
 const MAX_HISTORY = 100;
 
-const sourceLabel = (entry: Pick<FeedbackEntry, "source" | "model">) =>
-  entry.source === "ai"
-    ? `AI coach · ${entry.model ?? "model"}`
-    : "Offline coach · rule-based, not an AI model";
-
 async function requestCoach(project: Project, question?: string): Promise<FeedbackEntry> {
-  let response: Response;
-  try {
-    response = await fetch("/api/coach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: project.name,
-        summary: project.summary,
-        idea: project.idea,
-        question,
-      }),
-    });
-  } catch {
-    throw new Error("Could not reach the coach. Check your connection and try again.");
-  }
-  const body: unknown = await response.json().catch(() => null);
-  if (!response.ok) {
-    const message = (body as { error?: unknown } | null)?.error;
-    throw new Error(
-      typeof message === "string" ? message : "The coach could not respond. Try again.",
-    );
-  }
-  const parsed = coachResponseSchema.safeParse(body);
-  if (!parsed.success)
-    throw new Error("The coach sent a response this app could not read. Try again.");
+  const result = await postCoach({
+    name: project.name,
+    summary: project.summary,
+    idea: project.idea,
+    question,
+  });
   const meta = { id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-  return parsed.data.kind === "review"
-    ? { ...parsed.data, ...meta }
-    : { ...parsed.data, ...meta, question: question ?? "" };
+  if (result.kind === "review") return { ...result, ...meta };
+  if (result.kind === "answer") return { ...result, ...meta, question: question ?? "" };
+  throw new Error("The coach sent a response this app could not read. Try again.");
 }
 
 function List({ title, items }: { title: string; items: string[] }) {

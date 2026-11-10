@@ -1,3 +1,5 @@
+import { learningProgress } from "./lessons";
+import { roadmapProgress } from "./planning";
 import {
   CANVAS_BLOCKS,
   IDEA_FIELDS,
@@ -6,6 +8,7 @@ import {
   type Project,
   type Status,
 } from "./schema";
+import { validationSummary } from "./validation";
 
 export function newProject(input: NewProjectInput, id: string, now: string): Project {
   return projectSchema.parse({ ...input, id, createdAt: now, updatedAt: now });
@@ -92,4 +95,34 @@ export function parseStored(raw: string | null): { projects: Project[]; dropped:
   const results = data.map((item) => projectSchema.safeParse(item));
   const projects = results.flatMap((result) => (result.success ? [result.data] : []));
   return { projects, dropped: results.length - projects.length };
+}
+
+/**
+ * Apply an edit and validate the result. Returns null when the edited project would
+ * break the schema (for example a list past its limit), so invalid data is never
+ * saved and can never make a stored project unreadable.
+ */
+export function applyChange(
+  project: Project,
+  change: (project: Project) => Project,
+  now: string,
+): Project | null {
+  const parsed = projectSchema.safeParse({ ...change(project), id: project.id, updatedAt: now });
+  return parsed.success ? parsed.data : null;
+}
+
+/** Short progress notes for the project tools, shown on dashboard cards. */
+export function toolSummary(project: Project): string[] {
+  const validation = validationSummary(project.validation);
+  const roadmap = roadmapProgress(project.roadmap);
+  const learning = learningProgress(project);
+  return [
+    ...(validation.hypotheses > 0
+      ? [`${validation.supported + validation.refuted}/${validation.hypotheses} hypotheses tested`]
+      : []),
+    ...(validation.evidence > 0 ? [`${validation.evidence} evidence`] : []),
+    ...(roadmap.total > 0 ? [`${roadmap.done}/${roadmap.total} tasks done`] : []),
+    ...(project.practice.length > 0 ? [`${project.practice.length} practice answers`] : []),
+    ...(learning.done > 0 ? [`${learning.done}/${learning.total} lessons`] : []),
+  ];
 }

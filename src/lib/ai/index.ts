@@ -39,13 +39,17 @@ export function getProvider(env: Env = process.env): CoachProvider {
     : offlineProvider;
 }
 
-const run = async (provider: CoachProvider, request: CoachRequest) =>
-  request.question === undefined
-    ? { kind: "review" as const, review: await provider.review(request) }
-    : {
-        kind: "answer" as const,
-        answer: await provider.answer({ ...request, question: request.question }),
-      };
+async function run(provider: CoachProvider, request: CoachRequest) {
+  if (request.practice !== undefined) {
+    const practice = await provider.practice({ ...request, practice: request.practice });
+    return { kind: "practice" as const, practice };
+  }
+  if (request.question !== undefined) {
+    const answer = await provider.answer({ ...request, question: request.question });
+    return { kind: "answer" as const, answer };
+  }
+  return { kind: "review" as const, review: await provider.review(request) };
+}
 
 /**
  * Run the configured coach. If the AI provider fails for any reason, fall back to

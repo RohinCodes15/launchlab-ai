@@ -1,4 +1,5 @@
 import type { Answer, CoachRequest, Review } from "../schema";
+import { offlinePracticeFeedback } from "../practice";
 import type { CoachProvider } from "./provider";
 
 /**
@@ -340,6 +341,8 @@ const DEFAULT_ANSWER = (name: string): Answer => ({
 export const offlineProvider: CoachProvider = {
   source: "offline",
   review: async (request) => review(request),
+  practice: async (request) =>
+    offlinePracticeFeedback(request.practice.category, request.practice.response),
   answer: async (request) =>
     (TOPICS.find((topic) => topic.match.test(request.question))?.answer ?? DEFAULT_ANSWER)(
       request.name,

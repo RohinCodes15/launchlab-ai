@@ -130,6 +130,7 @@ describe("runCoach", () => {
       model: "test-model",
       review: () => Promise.reject(new Error("upstream down")),
       answer: () => Promise.reject(new Error("upstream down")),
+      practice: () => Promise.reject(new Error("upstream down")),
     };
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
 

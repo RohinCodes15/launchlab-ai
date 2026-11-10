@@ -35,6 +35,12 @@ export function SiteHeader() {
           >
             Dashboard
           </Link>
+          <Link
+            href="/backup"
+            className="rounded-md px-3 py-2 text-muted transition-colors hover:bg-raised hover:text-fg"
+          >
+            Backup
+          </Link>
           <button
             type="button"
             onClick={toggleTheme}

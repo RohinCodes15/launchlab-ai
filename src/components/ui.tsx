@@ -193,3 +193,95 @@ export function EmptyState({
     </div>
   );
 }
+
+interface PanelProps {
+  title: string;
+  description?: ReactNode;
+  actions?: ReactNode;
+  children: ReactNode;
+}
+
+/** A titled section card used by the project tools. */
+export function Panel({ title, description, actions, children }: PanelProps) {
+  const headingId = useId();
+  return (
+    <section aria-labelledby={headingId} className="rounded-2xl border border-line bg-surface p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 id={headingId} className="font-semibold">
+            {title}
+          </h3>
+          {description && <p className="mt-1 text-sm text-muted">{description}</p>}
+        </div>
+        {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+      </div>
+      <div className="mt-4 flex flex-col gap-3">{children}</div>
+    </section>
+  );
+}
+
+interface SelectProps<T extends string> {
+  label: string;
+  value: T;
+  options: readonly (T | { value: T; label: string })[];
+  onChange: (value: T) => void;
+  className?: string;
+}
+
+/** A compact select whose label is read by screen readers but not shown. */
+export function Select<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+  className = "",
+}: SelectProps<T>) {
+  return (
+    <select
+      aria-label={label}
+      value={value}
+      onChange={(event) => onChange(event.target.value as T)}
+      className={`${inputClass} w-auto ${className}`}
+    >
+      {options.map((option) => {
+        const item = typeof option === "string" ? { value: option, label: option } : option;
+        return (
+          <option key={item.value} value={item.value}>
+            {item.label}
+          </option>
+        );
+      })}
+    </select>
+  );
+}
+
+/** Says where a piece of content came from, so drafts are never mistaken for the student's own work or for evidence. */
+export function SourceBadge({ source }: { source: "user" | "suggested" }) {
+  return source === "suggested" ? <Badge tone="warn">Suggested draft</Badge> : <Badge>Yours</Badge>;
+}
+
+export function ToolHeader({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <h2 className="font-display text-3xl">{title}</h2>
+      <p className="mt-1 max-w-3xl text-sm text-muted">{children}</p>
+    </div>
+  );
+}
+
+const titleCase = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1).replaceAll("-", " ");
+
+/** Turn schema enum values into select options, with optional custom labels. */
+export const toOptions = <T extends string>(
+  values: readonly T[],
+  labels?: Partial<Record<T, string>>,
+) => values.map((value) => ({ value, label: labels?.[value] ?? titleCase(value) }));
+
+export function StatusMessage({ children }: { children: ReactNode }) {
+  return (
+    <p role="status" className="text-sm text-ok">
+      {children}
+    </p>
+  );
+}

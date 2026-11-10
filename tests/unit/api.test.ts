@@ -34,6 +34,32 @@ describe("POST /api/coach", () => {
     expect((await response.json()).kind).toBe("answer");
   });
 
+  test("returns rule-based practice feedback for a practice answer", async () => {
+    const practice = {
+      category: "problem",
+      question: "What problem does StudySwap solve?",
+      response: "Students cannot afford tutors.",
+    };
+    const response = await post(JSON.stringify({ ...valid, practice }));
+    const body = coachResponseSchema.parse(await response.json());
+
+    expect(body.kind).toBe("practice");
+    expect(body.source).toBe("offline");
+  });
+
+  test("rejects an empty practice answer and unknown practice fields", async () => {
+    const practice = { category: "problem", question: "Q?", response: "  " };
+
+    expect((await post(JSON.stringify({ ...valid, practice }))).status).toBe(400);
+    expect(
+      (
+        await post(
+          JSON.stringify({ ...valid, practice: { ...practice, response: "ok", extra: 1 } }),
+        )
+      ).status,
+    ).toBe(400);
+  });
+
   test("rejects malformed JSON", async () => {
     const response = await post("{not json");
 
