@@ -5,8 +5,14 @@ import { coachRequestSchema } from "@/lib/schema";
 export const maxDuration = 90;
 
 const MAX_BODY_BYTES = 20_000;
-const REQUESTS_PER_MINUTE = 12;
-const limiter = createRateLimiter(REQUESTS_PER_MINUTE, 60_000);
+const DEFAULT_REQUESTS_PER_MINUTE = 12;
+const MAX_REQUESTS_PER_MINUTE = 1000;
+const configured = Number(process.env.COACH_RATE_LIMIT_PER_MINUTE);
+const requestsPerMinute =
+  Number.isInteger(configured) && configured > 0 && configured <= MAX_REQUESTS_PER_MINUTE
+    ? configured
+    : DEFAULT_REQUESTS_PER_MINUTE;
+const limiter = createRateLimiter(requestsPerMinute, 60_000);
 
 const fail = (status: number, error: string, headers?: HeadersInit) =>
   Response.json({ error }, { status, headers });

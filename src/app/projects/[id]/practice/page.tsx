@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Badge, Button, Panel, ToolHeader, inputClass } from "@/components/ui";
+import { Badge, Button, Panel, ToolHeader, inputBase, inputClass } from "@/components/ui";
 import { useProjectSlice } from "@/components/use-current-project";
 import type { AiStatus } from "@/lib/ai";
 import { postCoach, sourceLabel } from "@/lib/coach-client";
@@ -153,7 +153,7 @@ export default function PracticePage() {
               setCategory(e.target.value);
               setQuestionIndex(0);
             }}
-            className={`${inputClass} w-auto`}
+            className={`${inputBase}`}
           >
             {PRACTICE_CATEGORIES.map((c) => (
               <option key={c.key} value={c.key}>

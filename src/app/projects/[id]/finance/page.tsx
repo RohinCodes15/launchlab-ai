@@ -388,14 +388,14 @@ export default function FinancePage() {
                       <Button
                         size="sm"
                         onClick={() => applyScenario(s, "canvas")}
-                        aria-label={`Add ${s.name} to canvas`}
+                        aria-label={`Add to canvas: ${s.name}`}
                       >
                         Add to canvas
                       </Button>
                       <Button
                         size="sm"
                         onClick={() => applyScenario(s, "pitch")}
-                        aria-label={`Add ${s.name} to pitch`}
+                        aria-label={`Add to pitch: ${s.name}`}
                       >
                         Add to pitch
                       </Button>

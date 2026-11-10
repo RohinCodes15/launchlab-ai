@@ -9,6 +9,7 @@ import {
   Select,
   SourceBadge,
   ToolHeader,
+  inputBase,
   inputClass,
 } from "@/components/ui";
 import { useProjectSlice } from "@/components/use-current-project";
@@ -266,7 +267,7 @@ export default function RoadmapPage() {
               type="date"
               value={milestone.date}
               onChange={(e) => setMilestone({ ...milestone, date: e.target.value })}
-              className={`${inputClass} w-auto`}
+              className={`${inputBase}`}
             />
             <Button
               type="submit"

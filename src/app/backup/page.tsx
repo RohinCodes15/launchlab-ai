@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
-import { Button, Confirm, Panel, StatusMessage, inputClass } from "@/components/ui";
+import { Button, Confirm, Panel, StatusMessage, inputBase } from "@/components/ui";
 import { MAX_BACKUP_BYTES, createBackup, parseBackup, type ImportMode } from "@/lib/backup";
 import type { Project } from "@/lib/schema";
 import { clearRecoveryCopy, importProjects, useProjects, useRecoveryCopy } from "@/lib/store";
@@ -80,7 +80,11 @@ export default function BackupPage() {
         </p>
       </div>
 
-      <Panel title="Export" description="Files are saved to your computer. Nothing is uploaded.">
+      <Panel
+        level="h2"
+        title="Export"
+        description="Files are saved to your computer. Nothing is uploaded."
+      >
         <div className="flex flex-wrap gap-2">
           <Button
             variant="primary"
@@ -96,7 +100,7 @@ export default function BackupPage() {
               aria-label="Project to export"
               value={single.id}
               onChange={(e) => setSelected(e.target.value)}
-              className={`${inputClass} w-auto max-w-full`}
+              className={`${inputBase} max-w-full`}
             >
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -116,6 +120,7 @@ export default function BackupPage() {
       </Panel>
 
       <Panel
+        level="h2"
         title="Import"
         description="Every project in the file is checked before anything is saved. Damaged projects are skipped and reported."
       >
@@ -201,6 +206,7 @@ export default function BackupPage() {
 
       {recovery && (
         <Panel
+          level="h2"
           title="Recovered data"
           description="When this browser last loaded your projects, some could not be read and were hidden. The original data was kept here so it is not lost."
         >

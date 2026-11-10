@@ -14,8 +14,10 @@ export function Button({ variant, size, className = "", type = "button", ...prop
   return <button type={type} className={`${buttonClass(variant, size)} ${className}`} {...props} />;
 }
 
-export const inputClass =
-  "w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted/70 transition-colors focus:border-accent";
+/** Field styling without a width, for controls that size to their content. */
+export const inputBase =
+  "rounded-lg border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted/70 transition-colors focus:border-accent";
+export const inputClass = `w-full ${inputBase}`;
 
 interface FieldProps {
   label: string;
@@ -196,21 +198,29 @@ export function EmptyState({
 
 interface PanelProps {
   title: string;
+  /** Heading level: h3 inside a project tool (under its h2), h2 on a top-level page. */
+  level?: "h2" | "h3";
   description?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
 }
 
 /** A titled section card used by the project tools. */
-export function Panel({ title, description, actions, children }: PanelProps) {
+export function Panel({
+  title,
+  level: Heading = "h3",
+  description,
+  actions,
+  children,
+}: PanelProps) {
   const headingId = useId();
   return (
     <section aria-labelledby={headingId} className="rounded-2xl border border-line bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 id={headingId} className="font-semibold">
+          <Heading id={headingId} className="font-semibold">
             {title}
-          </h3>
+          </Heading>
           {description && <p className="mt-1 text-sm text-muted">{description}</p>}
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -241,7 +251,7 @@ export function Select<T extends string>({
       aria-label={label}
       value={value}
       onChange={(event) => onChange(event.target.value as T)}
-      className={`${inputClass} w-auto ${className}`}
+      className={`${inputBase} ${className}`}
     >
       {options.map((option) => {
         const item = typeof option === "string" ? { value: option, label: option } : option;

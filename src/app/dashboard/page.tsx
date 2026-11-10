@@ -11,6 +11,7 @@ import {
   Field,
   Modal,
   ProgressBar,
+  inputBase,
   inputClass,
 } from "@/components/ui";
 import { filterProjects, getProgress, toolSummary, type ProjectView } from "@/lib/projects";
@@ -216,13 +217,13 @@ export default function DashboardPage() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search projects"
               aria-label="Search projects"
-              className={`${inputClass} max-w-xs`}
+              className={`${inputBase} w-full max-w-xs`}
             />
             <select
               value={view}
               onChange={(event) => setView(event.target.value as ProjectView)}
               aria-label="Filter projects"
-              className={`${inputClass} w-auto`}
+              className={`${inputBase}`}
             >
               {VIEWS.map((option) => (
                 <option key={option.value} value={option.value}>

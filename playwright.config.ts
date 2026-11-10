@@ -20,6 +20,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
     // Tests always exercise the offline coach, whatever is in the developer's .env.
-    env: { AI_PROVIDER: "offline" },
+    // All browser tests share one client address, so lift the per-client limit for the test server only.
+    env: { AI_PROVIDER: "offline", COACH_RATE_LIMIT_PER_MINUTE: "1000" },
   },
 });

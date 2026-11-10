@@ -233,6 +233,7 @@ for (const theme of ["light", "dark"] as const) {
   test(`accessibility and layout: no axe violations or sideways scrolling (${theme})`, async ({
     page,
   }) => {
+    test.slow(); // runs axe on all 13 screens
     await page.addInitScript((value) => localStorage.setItem("launchlab.theme", value), theme);
     const check = async (label: string) => {
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -270,6 +271,26 @@ for (const theme of ["light", "dark"] as const) {
     await openStep(page, "Pitch");
     await expect(page.getByLabel("Title of slide 1, Problem")).toBeVisible();
     await check("pitch");
+
+    for (const [tool, ready] of [
+      ["Validation", "Hypothesis 1"],
+      ["Personas", "Name of persona 1"],
+      ["Competitors", "Competitor name"],
+      ["Finance", "Name of scenario 1"],
+      ["Roadmap", "New task"],
+      ["Practice", "Question category"],
+    ] as const) {
+      await openStep(page, tool);
+      await expect(page.getByLabel(ready, { exact: true })).toBeVisible();
+      await check(tool.toLowerCase());
+    }
+    await openStep(page, "Learn");
+    await expect(page.getByRole("button", { name: "Check answers" })).toBeVisible();
+    await check("learn");
+
+    await page.goto("/backup");
+    await expect(page.getByLabel("Backup file (.json)")).toBeVisible();
+    await check("backup");
 
     await page.goto("/dashboard");
     await expect(page.getByRole("link", { name: "StudySwap" })).toBeVisible();

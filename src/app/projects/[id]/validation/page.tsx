@@ -9,6 +9,7 @@ import {
   SourceBadge,
   StatusMessage,
   ToolHeader,
+  inputBase,
   inputClass,
   toOptions,
 } from "@/components/ui";
@@ -492,7 +493,7 @@ function SurveyPanel({ validation, save }: PanelProps) {
                       aria-label={label}
                       value={value}
                       onChange={(e) => set(e.target.value)}
-                      className={`${inputClass} w-auto self-start`}
+                      className={`${inputBase} self-start`}
                     >
                       <option value="">No answer</option>
                       {(q.type === "scale" ? ["1", "2", "3", "4", "5"] : ["yes", "no"]).map(
@@ -791,15 +792,13 @@ export default function ValidationPage() {
       ...v,
       hypotheses: [
         ...v.hypotheses,
-        ...drafts
-          .slice(0, LIMITS.hypotheses - v.hypotheses.length)
-          .map((draft) => ({
-            ...draft,
-            id: newId(),
-            priority: "medium" as const,
-            confidence: 3,
-            status: "untested" as const,
-          })),
+        ...drafts.slice(0, LIMITS.hypotheses - v.hypotheses.length).map((draft) => ({
+          ...draft,
+          id: newId(),
+          priority: "medium" as const,
+          confidence: 3,
+          status: "untested" as const,
+        })),
       ],
     }));
 
