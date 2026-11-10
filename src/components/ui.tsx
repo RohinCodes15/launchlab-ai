@@ -107,9 +107,11 @@ export function Modal({ open, onClose, title, children, wide = false }: ModalPro
 
   useEffect(() => {
     const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
+    if (!open || !dialog) return;
+    dialog.showModal();
+    // Also runs when Next.js hides this page after navigation: an open modal left
+    // behind in a hidden page would keep the rest of the document inert.
+    return () => dialog.close();
   }, [open]);
 
   return (

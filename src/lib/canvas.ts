@@ -22,7 +22,7 @@ export function suggestBlock(key: CanvasKey, project: Project): string {
     }`,
     channels: `Where does this audience already spend time? (${audience})\nIdeas to test: word of mouth, a club or class announcement, one online community they already use.`,
     customerRelationships: `How will the first 10 users get help? Start personal: message each one yourself.\nWhat brings them back a second time?`,
-    revenueStreams: `Hypotheses to test (none are proven yet):\n- Free while you validate the idea\n- A small one-time or monthly price\n- Someone else pays (a school, club, or sponsor)\nAsk: what do they pay for today to solve this?`,
+    revenueStreams: `Hypotheses to test (none are tested yet):\n- Free while you validate the idea\n- A small one-time or monthly price\n- Someone else pays (a school, club, or sponsor)\nAsk: what do they pay for today to solve this?`,
     keyResources: `To deliver "${solution}" you need:\n- People and skills:\n- Tools or technology:\n- Content, data, or space:`,
     keyActivities: `Every week you must:\n- Build or improve the product\n- Talk to users (${audience})\n- Check your success criteria${
       idea.successCriteria.trim() ? `: ${idea.successCriteria.trim().split("\n")[0]}` : ""

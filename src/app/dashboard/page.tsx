@@ -55,6 +55,7 @@ function NewProjectForm({ onCancel }: { onCancel: () => void }) {
       setError(parsed.error.issues[0].message);
       return;
     }
+    onCancel(); // close the dialog so it is not kept open inside the hidden dashboard
     router.push(`/projects/${createProject(parsed.data).id}`);
   }
 

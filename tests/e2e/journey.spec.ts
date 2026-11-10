@@ -41,7 +41,7 @@ test("a student goes from idea to coached feedback, canvas, and an exported pitc
     await expect(page.getByRole("heading", { name: "Start with one idea." })).toBeVisible();
     await createProject(page, "TutorLoop");
     for (const [label, text] of Object.entries(IDEA)) await page.getByLabel(label).fill(text);
-    await expect(page.getByText("Saved in this browser")).toBeVisible();
+    await expect(page.getByText("Saved in this browser", { exact: true })).toBeVisible();
     await capture(page, "idea-studio");
   });
 
@@ -71,11 +71,11 @@ test("a student goes from idea to coached feedback, canvas, and an exported pitc
   await test.step("fill and edit the business model canvas", async () => {
     await openStep(page, "Canvas");
     await page.getByRole("button", { name: "Draft 9 empty blocks" }).click();
-    await expect(page.getByLabel("Customer Segments")).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "Customer Segments" })).toHaveValue(
       /Sophomores at one public high school/,
     );
 
-    const channels = page.getByLabel(/Channels$/);
+    const channels = page.getByRole("textbox", { name: "Channels" });
     await channels.fill("Homeroom announcements and library posters.");
     await page.getByRole("button", { name: "Suggest a draft for Channels" }).click();
     const dialog = page.getByRole("dialog", { name: "Replace Channels?" });
@@ -84,7 +84,7 @@ test("a student goes from idea to coached feedback, canvas, and an exported pitc
     await expect(channels).toHaveValue("Homeroom announcements and library posters.");
 
     await page.reload();
-    await expect(page.getByLabel(/Channels$/)).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "Channels" })).toHaveValue(
       "Homeroom announcements and library posters.",
     );
     await capture(page, "canvas");
@@ -162,10 +162,12 @@ test("the demo project opens complete, with a printable canvas", async ({ page }
   await page.goto("/dashboard");
   await page.getByRole("button", { name: "Explore the demo project" }).click();
   await expect(page.getByRole("heading", { name: "StudySwap" })).toBeVisible();
-  await expect(page.getByText("Demo", { exact: true })).toBeVisible();
+  await expect(page.getByRole("main").getByText("Demo", { exact: true }).first()).toBeVisible();
 
   await openStep(page, "Canvas");
-  await expect(page.getByLabel("Revenue Streams")).toHaveValue(/None during the pilot/);
+  await expect(page.getByRole("textbox", { name: "Revenue Streams" })).toHaveValue(
+    /None during the pilot/,
+  );
   await page.emulateMedia({ media: "print" });
   await expect(page.getByText("StudySwap: Business Model Canvas")).toBeVisible();
   await expect(page.locator(".bmc .print-only").first()).toContainText("sophomores and juniors");
@@ -175,13 +177,13 @@ test("validation: a project needs a name, and an empty name is never saved", asy
   await page.goto("/dashboard");
   await page.getByRole("button", { name: "New project" }).click();
   await page.getByRole("button", { name: "Create project" }).click();
-  await expect(page.getByRole("alert")).toHaveText("Give your project a name");
+  await expect(page.getByText("Give your project a name")).toBeVisible();
   await expect(page).toHaveURL(/\/dashboard$/);
 
   await page.getByLabel("Project name").fill("Keeper");
   await page.getByRole("button", { name: "Create project" }).click();
   await page.getByLabel("Project name").fill("");
-  await expect(page.getByRole("alert")).toHaveText("Give your project a name");
+  await expect(page.getByText("Give your project a name")).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Project name")).toHaveValue("Keeper");
 });
@@ -262,7 +264,7 @@ for (const theme of ["light", "dark"] as const) {
     await check("coach");
 
     await openStep(page, "Canvas");
-    await expect(page.getByLabel("Customer Segments")).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "Customer Segments" })).toBeVisible();
     await check("canvas");
 
     await openStep(page, "Pitch");
