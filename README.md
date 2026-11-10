@@ -172,3 +172,7 @@ The AI coach turns on only when **both** `AI_PROVIDER=anthropic` and `ANTHROPIC_
 8. In **Practice**, answer a question and read the feedback and its "rule-based" label.
 9. In **Backup**, export everything, delete the project from the dashboard, and import the file back.
 10. Toggle the theme in the header.
+
+## License
+
+[MIT](LICENSE)

@@ -36,7 +36,7 @@ Run through this before every public release. Items marked ✅ were verified for
 
 ## Publishing (needs owner approval)
 
-- ⬜ License chosen and `LICENSE` file added
+- ✅ License chosen (MIT) and `LICENSE` file added
 - ⬜ GitHub repository created and `main` pushed
 - ⬜ GitHub Actions CI passes on GitHub
 - ⬜ Vercel project created and deployed (Hobby plan, no environment variables)
