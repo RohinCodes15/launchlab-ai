@@ -24,7 +24,9 @@ An entrepreneurship learning app: idea → coach feedback → business model can
 | Everything                   | `npm run check`     |
 | Format                       | `npm run format`    |
 
-Run `npm run check` before committing. Browser tests need `npx playwright install chromium` once.
+Run `npm run check` before committing. Browser tests need `npx playwright install chromium` once. Set `BASE_URL` to run the browser suite against a deployed site (use `--workers=1`: the live coach is rate-limited).
+
+Deployment: Vercel project `launchlab-ai` (https://launchlab-ai-six.vercel.app), deployed with `vercel deploy --prod`. It is not connected to GitHub, so pushes do not deploy. No environment variables are set; do not add AI keys without the owner's approval.
 
 ## Architecture
 

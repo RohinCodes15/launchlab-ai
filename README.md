@@ -1,5 +1,9 @@
 # LaunchLab AI
 
+[![CI](https://github.com/RohinCodes15/launchlab-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/RohinCodes15/launchlab-ai/actions/workflows/ci.yml)
+
+**Live demo: [launchlab-ai-six.vercel.app](https://launchlab-ai-six.vercel.app)**. Works in your browser with no sign-up; your projects stay on your device.
+
 **From idea to startup.** An entrepreneurship learning app that walks a student from a rough idea to a plan they can defend: write the idea, get coached, test assumptions with real people, model the money, map the business model, and build and practise a pitch.
 
 ![Landing page](docs/screenshots/landing-light.png)
@@ -119,11 +123,14 @@ npm test              # 98 unit and API tests (Vitest)
 npx playwright install chromium   # once
 npm run test:e2e      # 17 browser tests, each on desktop and mobile viewports (Playwright)
 npm run check         # lint, typecheck, unit, and browser tests
+BASE_URL=https://launchlab-ai-six.vercel.app npx playwright test --workers=1   # run the browser suite against a deployed site
 ```
 
 Unit tests cover every financial formula, validation summaries and next steps, practice scoring, backup round trips (merge, replace, duplicate ids, damaged and oversized files, newer formats), persona/competitor/roadmap logic, lessons, loading version-1 data, and refusal of invalid edits.
 
 The browser suite runs against the production build and covers the full journey (create, reload, coach, follow-up, canvas, pitch, reorder, preview, PDF export, duplicate, archive, delete), every project tool's core workflow including the cross-tool buttons, export → delete → import, input validation, HTML-injection and `javascript:` link safety, keyboard use of the chart and board, isolation between browser profiles, the CSP header, the privacy page, icon, robots.txt, sitemap and social preview image, API rejection of malformed input, and automated accessibility checks (axe) on all 14 screens in light and dark themes with a check for sideways scrolling.
+
+The same 34 browser test runs pass against the live deployment (run one at a time to stay under the live coach rate limit), and a scripted walk through every page on desktop and mobile showed no console errors or failed requests.
 
 Last verified locally: lint clean, typecheck clean, 98/98 unit tests, 34/34 browser test runs, production build passing, `npm audit` reporting 0 vulnerabilities. CI (`.github/workflows/ci.yml`) runs the same steps.
 
@@ -155,6 +162,8 @@ Last verified locally: lint clean, typecheck clean, 98/98 unit tests, 34/34 brow
 - When the AI coach is on, idea text is sent to Anthropic. Do not enable it for users under 18 without checking the consent rules that apply to you.
 
 ## Deployment
+
+The live site is deployed on Vercel's free Hobby plan with no environment variables, so the coach runs offline and no paid API is ever called. It was deployed with the Vercel CLI; pushes to GitHub do not deploy automatically.
 
 The app is a standard Next.js project with no required configuration. On Vercel, import the repository and deploy with the defaults: no environment variables are needed, and the coach runs in offline mode. On any other Node host (Node 22 or newer), run `npm ci && npm run build && npm start` and set `SITE_URL` to the public address so social previews and the sitemap use it.
 

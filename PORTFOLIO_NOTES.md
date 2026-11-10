@@ -2,8 +2,8 @@
 
 ## Links
 
-- **Live site:** not deployed yet
-- **Source code:** not published yet
+- **Live site:** https://launchlab-ai-six.vercel.app (Vercel, offline coach, no environment variables)
+- **Source code:** https://github.com/RohinCodes15/launchlab-ai (MIT license, GitHub Actions CI passing)
 
 ## What it is
 
@@ -27,12 +27,14 @@ Landing page; privacy page; dashboard with search, filters, progress and a ficti
 
 Not implemented: accounts, a database, cross-device sync, drag and drop on the board. The Claude path has not been run against the live API.
 
-## Test results (local, 2026-11-10)
+## Test results (2026-11-10)
 
 - 98/98 unit and API tests (Vitest)
 - 34/34 browser test runs: 17 scenarios on desktop and mobile viewports, against the production build (Playwright)
 - Automated accessibility checks (axe) clean on all 14 screens in light and dark themes
 - Lint and typecheck clean; production build passes; `npm audit` 0 vulnerabilities
+- GitHub Actions CI: passing on `main`
+- Live site: the same 34 browser runs pass against the production deployment; a scripted walk through every page on desktop and mobile showed no console errors or failed requests
 
 ## Resume bullets
 

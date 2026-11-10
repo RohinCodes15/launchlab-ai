@@ -237,6 +237,8 @@ for (const theme of ["light", "dark"] as const) {
     await page.addInitScript((value) => localStorage.setItem("launchlab.theme", value), theme);
     const check = async (label: string) => {
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      // Next.js briefly swaps <title> while streaming metadata on client navigation; audit the settled page.
+      await expect(page).toHaveTitle(/LaunchLab AI/);
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations.map((v) => `${label}: ${v.id} (${v.nodes[0]?.target})`)).toEqual(
         [],

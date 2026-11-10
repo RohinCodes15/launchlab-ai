@@ -25,7 +25,7 @@ Run through this before every public release. Items marked ✅ were verified for
 - ✅ Backup import: 5 MB limit, every project re-validated
 - ✅ Privacy page explains browser-local storage
 - ✅ Demo data is fictional
-- ⬜ Commit author email (`rohincodes15@gmail.com`) becomes public when the repository is pushed. Accept, or change the git author for future commits.
+- ✅ Commit author email (`rohincodes15@gmail.com`) is public in the repository history (accepted by the owner)
 
 ## Production basics
 
@@ -34,16 +34,20 @@ Run through this before every public release. Items marked ✅ were verified for
 - ✅ Node 22+ declared in `package.json`
 - ✅ No environment variables required
 
-## Publishing (needs owner approval)
+## Publishing (approved by the owner)
 
 - ✅ License chosen (MIT) and `LICENSE` file added
-- ⬜ GitHub repository created and `main` pushed
-- ⬜ GitHub Actions CI passes on GitHub
-- ⬜ Vercel project created and deployed (Hobby plan, no environment variables)
-- ⬜ Live site: all workflows, persistence, backup, headers, offline coach, no console errors
-- ⬜ README and PORTFOLIO_NOTES updated with real URLs
+- ✅ GitHub repository created and `main` pushed: https://github.com/RohinCodes15/launchlab-ai (public)
+- ✅ GitHub Actions CI passes on GitHub (run 42866563080, 2m 10s)
+- ✅ Vercel project `launchlab-ai` deployed: https://launchlab-ai-six.vercel.app (Hobby plan, no environment variables, Git auto-deploy disconnected)
+- ✅ Live site: 34/34 browser runs pass against production (`BASE_URL=… npx playwright test --workers=1`); security headers present (plus HSTS from Vercel); `/api/health` reports offline; no console errors or failed requests on any page, desktop or mobile; no server errors in Vercel logs
+- ✅ README and PORTFOLIO_NOTES updated with real URLs
 
 ## After release
 
 - ⬜ Remove the `minimatch` override in `package.json` once `typescript-eslint` ships the fix
 - ⬜ Rate limits are per server instance; revisit if AI is ever enabled publicly
+
+## Redeploying
+
+The Vercel project is not connected to GitHub, so pushes do not deploy. To release a new version: run every check above, then `vercel deploy --prod` from the repository root, then rerun the browser suite with `BASE_URL` set to the live URL.
