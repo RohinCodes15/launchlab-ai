@@ -1,15 +1,32 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Instrument_Serif } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const display = Instrument_Serif({ variable: "--font-display", subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: { default: "LaunchLab AI", template: "%s · LaunchLab AI" },
-  description:
-    "From idea to startup. Shape a startup idea, get coaching, map the business model, and build a pitch.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: "LaunchLab AI: From idea to startup", template: "%s · LaunchLab AI" },
+  description: SITE_DESCRIPTION,
+  applicationName: "LaunchLab AI",
+  openGraph: {
+    type: "website",
+    siteName: "LaunchLab AI",
+    title: "LaunchLab AI: From idea to startup",
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+  twitter: { card: "summary_large_image" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#131210" },
+  ],
 };
 
 // Static string, no user input. Runs before paint so the saved theme never flashes.

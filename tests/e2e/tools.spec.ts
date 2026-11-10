@@ -342,3 +342,35 @@ test("the content security policy is sent and the app still runs under it", asyn
   await expect(page.getByRole("img", { name: /Cash balance by month/ })).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test("production basics: privacy page, icon, robots, sitemap and social preview", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("navigation", { name: "Footer" })
+    .getByRole("link", { name: "Privacy" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Your projects stay in your browser" }),
+  ).toBeVisible();
+  await expect(page).toHaveTitle("Privacy · LaunchLab AI");
+
+  await page.goto("/");
+  await expect(page.locator('link[rel="icon"]').first()).toHaveAttribute("href", /icon/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /opengraph-image/,
+  );
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /students/);
+
+  const robots = await request.get("/robots.txt");
+  expect(await robots.text()).toContain("Disallow: /api/");
+  const sitemap = await request.get("/sitemap.xml");
+  expect(await sitemap.text()).toContain("/privacy</loc>");
+  for (const asset of ["/icon.svg", "/opengraph-image.png"]) {
+    const response = await request.get(asset);
+    expect(response.status(), asset).toBe(200);
+  }
+});

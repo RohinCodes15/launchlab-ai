@@ -1,75 +1,70 @@
 # Portfolio notes
 
-## What the app does
+## Links
 
-LaunchLab AI guides a student through one startup project: write the idea, get structured coaching, test assumptions (hypotheses, interviews, surveys, evidence, experiments), model pricing and cash, describe personas and competitors, plan an MVP roadmap, fill in a Business Model Canvas, build a nine-slide pitch that exports to PDF, and practise answering pitch questions. Short lessons tie each concept to a task in the student's own project, and projects can be exported and imported as backup files.
+- **Live site:** not deployed yet
+- **Source code:** not published yet
 
-## Technologies
+## What it is
 
-Next.js 16 (App Router), React 19, TypeScript in strict mode, Tailwind CSS 4, Zod 4, the Anthropic TypeScript SDK (optional path), Vitest, Playwright with axe-core, GitHub Actions.
+LaunchLab AI is a free web app that teaches high school students how to turn a startup idea into a plan they can defend. A student creates a project, writes the idea, and works through connected tools: structured coaching, a Validation Lab for testing assumptions with real people, a Finance Studio for pricing and cash, customer personas, competitor analysis, an MVP roadmap, a Business Model Canvas, a nine-slide pitch that exports to PDF, written pitch practice, and short lessons tied to the student's own project. It works without accounts or paid services: projects live in the browser and can be exported as backup files.
 
-## Technical challenges
+## Technology (verified in `package.json`)
 
-- **A hidden page froze the app.** Next.js 16 keeps the previous page mounted but hidden after navigation. The "New project" dialog stayed open inside the hidden dashboard, and an open modal dialog makes the rest of the document unresponsive, so typing in Idea Studio did nothing. The browser tests caught it. The fix was to close the dialog before navigating and on effect cleanup.
-- **Reading browser storage without hydration errors.** The server cannot see `localStorage`, so the store uses `useSyncExternalStore` with an empty server snapshot and a separate "ready" flag to tell "still loading" from "no projects".
-- **Not losing data to one bad record.** Stored projects are validated one at a time, and the unreadable original is copied to a backup key before anything is written back.
-- **One schema for three consumers.** The same Zod schemas validate browser storage, the API request, and the model's structured output.
-- **Honest AI.** The offline coach is rule-based, so the interface labels it that way everywhere, and an AI failure falls back with a visible notice.
-- **Growing the data model without breaking saved data.** Eight tools were added after version 1 shipped. Every new field has a default, so old projects load with empty tools, and a unit test loads a version-1 project to prove it.
-- **Making invalid data impossible to save.** Every list has a maximum. Instead of trusting each screen, every update is run through the project schema and refused if invalid, so a project can never be saved in a state that would make it unreadable.
-- **Safe import.** Backup files are untrusted input: size-limited, re-validated per project, and merged so duplicate ids become separate copies instead of overwriting.
-- **An accessible chart without a library.** The finance chart is hand-written SVG with a hover crosshair, keyboard reading with the arrow keys, a legend, a table view, and colours checked for colour-blind separation in both themes.
+Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS 4, Zod 4, the Anthropic TypeScript SDK (optional, off by default), Vitest, Playwright with axe-core, Prettier and ESLint, GitHub Actions. No database, component library, or charting library.
 
-## Architectural decisions
+## Architecture
 
-- **Browser-local storage instead of a database.** With no login, a server database would be readable and writable by anyone. Keeping data in the browser gives real privacy with no backend to secure.
-- **A provider interface for the coach.** The offline and Claude coaches implement the same two methods, so the app works with no key and the choice is one environment variable.
-- **Print stylesheets instead of a PDF library.** The browser already produces PDFs; a print layout was less code and no extra dependency.
-- **Pure domain modules.** Progress, duplication, filtering, canvas drafts, slide generation, and claim detection are plain functions, which is why they are easy to unit-test.
-- **No component library.** A few Tailwind components and the native `<dialog>` element covered the need.
-- **One AI route for all AI features.** Pitch practice reuses `/api/coach` and its provider interface (a third method), so it inherits the rate limit, validation, size limit, and fallback instead of duplicating them.
-- **Copy between tools only on request.** Tools pass information along through explicit buttons that append, never silently overwrite, so students stay in control of their text.
+- **Browser-local data.** One module (`src/lib/store.ts`) reads and writes `localStorage`. Everything is checked against Zod schemas when loaded, one project at a time, and every edit is checked before it is saved, so a stored project can never become unreadable.
+- **Pure domain logic.** Finance formulas, validation summaries, practice scoring, backup import, roadmap and lesson logic are plain TypeScript functions with unit tests.
+- **One server endpoint.** `/api/coach` is stateless. It validates and size-limits each request, rate-limits each client, and calls a coach provider: a deterministic rule-based one by default, or Claude when explicitly configured. If the AI fails, it falls back to the rule-based coach and says so.
+- **Schema-based migrations.** Fields added after version 1 have defaults, so projects saved earlier load with empty tools.
+- **Security.** Content-Security-Policy and other security headers; user text rendered as text; user links filtered to http/https; imported files size-limited and re-validated; the API key never reaches the browser.
 
-## Features actually implemented
+## Implemented features
 
-Landing page; dashboard with search, status filter, archive view, progress, and a demo project; project create, edit, duplicate, archive, restore, and delete; autosave with validation; offline coach with reviews, follow-up questions, and history; optional Claude coach with structured output, timeout, retry, and fallback; rate-limited and size-limited API route; health route; nine-block canvas with drafts and confirm-before-replace; pitch generation, editing, reordering, preview, claim flags, and PDF export through print; Validation Lab (hypotheses, interview guide and notes, survey builder with summaries, evidence board, experiments, rule-based next steps); Finance Studio (four scenarios, margin, break-even, cash flow, runway, comparison, interactive chart); Pitch Practice (six question categories, scored feedback, history, recurring advice); personas with comparison; competitor records, feature matrix and positioning; MVP roadmap with scoring, milestones, board and dependencies; five lessons with quizzes; backup export and import with merge and replace; cross-tool copy buttons; tool progress on the dashboard; Content-Security-Policy; light and dark themes; responsive layouts; loading, error, and not-found pages; 98 unit tests and 16 browser tests run on two viewports; CI workflow.
+Landing page; privacy page; dashboard with search, filters, progress and a fictional demo project; project create, edit, duplicate, archive, delete; Idea Studio with autosave; Startup Coach with reviews, follow-ups and history; Business Model Canvas with drafts, confirm-before-replace and printing; Pitch Builder with generation, editing, reordering, preview, unverified-claim flags and PDF export; Validation Lab (hypotheses, interview guide and notes, survey builder and summaries, evidence board, experiments, next steps); Finance Studio (four scenarios, margin, break-even, 12-month cash flow, runway, comparison, keyboard-accessible chart); Pitch Practice (six categories, scored feedback, history); personas; competitor analysis with a feature matrix; MVP roadmap with scoring, milestones, a board and dependencies; five lessons with quizzes; Backup Center with export, validated import, merge and replace; buttons that move information between tools; light and dark themes; responsive layouts.
 
-Not implemented: accounts, a database, cross-device sync, drag and drop on the board, deployment. The Claude path has not been run against the live API, and the CI workflow has not run on GitHub.
+Not implemented: accounts, a database, cross-device sync, drag and drop on the board. The Claude path has not been run against the live API.
 
-## How to demonstrate it
+## Test results (local, 2026-11-10)
 
-Follow the "Demo walkthrough" in the README (about five minutes). Good moments to show: the offline label on coach output, the unverified-claim flag appearing as you type a statistic, contradicting evidence changing the next steps, break-even becoming impossible when cost exceeds price, export → delete → import in the Backup Center, and `npm run check` passing.
+- 98/98 unit and API tests (Vitest)
+- 34/34 browser test runs: 17 scenarios on desktop and mobile viewports, against the production build (Playwright)
+- Automated accessibility checks (axe) clean on all 14 screens in light and dark themes
+- Lint and typecheck clean; production build passes; `npm audit` 0 vulnerabilities
 
-## Resume bullet points
+## Resume bullets
 
-Each of these is backed by code and tests in this repository. Use only the ones you can explain.
+Each is backed by code and tests in the repository.
 
-- Built a full-stack Next.js 16 and TypeScript application with twelve integrated tools that take students from a startup idea through validation, financial modelling, a Business Model Canvas, and an exportable pitch deck.
-- Implemented a finance engine (contribution margin, break-even, 12-month cash flow, runway) with unit-tested formulas and an accessible, keyboard-navigable SVG chart.
-- Built a versioned JSON backup and restore feature with schema validation, partial recovery from damaged files, and duplicate-id handling, verified with automated round-trip tests.
-- Evolved a browser-stored data model across a major release with default-based migrations and a validation gate that rejects any edit that would corrupt saved data.
-- Designed a provider abstraction for AI feedback with a deterministic offline implementation and an optional Claude integration using schema-validated structured output, timeouts, and automatic fallback.
-- Secured a public API route with per-client rate limiting, request size limits, and strict Zod validation, and kept API credentials server-side.
-- Chose browser-local persistence with per-record validation and corruption backup to give users private data without an authentication system.
-- Wrote 98 unit tests and a 16-scenario Playwright suite covering every tool's core workflow, accessibility on all 13 screens (axe, light and dark themes), keyboard use, and mobile layout, configured to run in GitHub Actions.
-- Diagnosed and fixed a bug where a modal dialog left open in a hidden route made the next page unresponsive.
+- Built and tested LaunchLab AI, a Next.js 16 / TypeScript web app with twelve connected tools that guide students from a startup idea through assumption testing, financial modelling, and an exportable pitch deck.
+- Designed a pluggable AI feedback layer with a deterministic offline coach and an optional Claude integration behind a rate-limited, size-limited, Zod-validated API route, with automatic fallback and clear labelling of rule-based output.
+- Protected browser-stored user data with per-record validation, an edit gate that rejects any change that would corrupt a project, default-based schema migrations, and a versioned JSON backup and restore feature, verified by 98 unit tests and a 34-run Playwright suite with accessibility checks.
+
+## Interview explanation (about 30 seconds)
+
+"LaunchLab is a startup learning app I built for students. You write an idea, then test it: record interviews and evidence, model break-even and cash, and build a pitch. Everything connects, so evidence you collect can go straight into your pitch. I kept it free and private by storing data in the browser instead of a database, which meant I had to be careful about protecting that data, so every edit is validated before it's saved. The coach works offline with rules, and I added an optional Claude integration but made sure the app never claims rule-based feedback is AI. The part I learned most from was testing: Playwright caught a bug where a dialog left open on a hidden page froze the next page."
+
+## Technical challenges worth discussing
+
+- **A hidden page froze the app.** Next.js keeps the previous page mounted but hidden. A dialog left open there made the next page unresponsive. Browser tests caught it; the fix closes dialogs before navigating.
+- **Reading browser storage without hydration errors,** using `useSyncExternalStore` with a separate "ready" flag.
+- **Growing the data model safely** across a major release with defaults, proven by a test that loads old data.
+- **Flaky tests that were real bugs:** an opacity fade made contrast checks fail at random, and the shared test address tripped the coach rate limit. Both were fixed at the cause rather than retried.
+- **Honest output:** the rule-based coach is labelled everywhere, and the demo project contains assumptions only, never invented evidence.
 
 ## What to review and understand yourself
 
-This code was written with an AI coding assistant. Before presenting it as your work in an interview, be able to explain:
+This code was written with an AI coding assistant. Before presenting it as your work, be able to explain:
 
-1. `src/lib/store.ts`: what `useSyncExternalStore` does and why there is a "ready" flag.
-2. `src/lib/schema.ts`: how Zod schemas become TypeScript types, and what `.default()` and `.prefault()` do for older saved data.
-3. `src/app/api/coach/route.ts` and `src/lib/ai/rate-limit.ts`: each check, in order, and why the rate limiter's in-memory design is a limitation.
-4. `src/lib/ai/index.ts`: when the fallback happens and why the error message is not logged.
-5. `src/lib/ai/offline.ts`: that it is rule-based. Do not describe it as a model.
-6. `src/lib/pitch.ts`: the claim regexes and what they miss.
-7. The modal bug above: reproduce it by removing the `onCancel()` call in the dashboard form.
-8. Why there is no database, and what you would have to build to add one safely.
-9. `src/lib/finance.ts`: derive break-even and runway by hand for one scenario and check the app agrees.
-10. `src/lib/backup.ts`: what merge does with a duplicate id, and why every imported project is re-validated.
-11. `applyChange` in `src/lib/projects.ts` and `updateProject` in `store.ts`: why validating every edit protects saved data.
-12. `src/lib/practice.ts`: that practice feedback is regex checks, and what it cannot judge.
-13. `next.config.ts`: what the CSP blocks and why it still allows inline scripts.
+1. `src/lib/store.ts` and `applyChange` in `src/lib/projects.ts`: how data is loaded, why every edit is validated.
+2. `src/lib/schema.ts`: how Zod schemas become types, and how `.default()` handles older saved data.
+3. `src/app/api/coach/route.ts`: each check in order, and why the in-memory rate limiter is a limitation.
+4. `src/lib/ai/`: the provider interface, when fallback happens, and that `offline.ts` is rules, not a model.
+5. `src/lib/finance.ts`: work out break-even and runway by hand for one scenario.
+6. `src/lib/backup.ts`: what merge does with a duplicate id, and why imports are re-validated.
+7. `next.config.ts`: what the Content-Security-Policy blocks and why it allows inline scripts.
+8. Why there is no database, and what you would build to add one safely.
 
-Be upfront that an AI assistant helped. Interviewers ask, and being able to explain every part matters more than having typed it.
+Be upfront that an AI assistant helped. Being able to explain every part matters more than having typed it.

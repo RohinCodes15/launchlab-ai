@@ -117,19 +117,20 @@ flowchart LR
 ```bash
 npm test              # 98 unit and API tests (Vitest)
 npx playwright install chromium   # once
-npm run test:e2e      # 16 browser tests, each on desktop and mobile viewports (Playwright)
+npm run test:e2e      # 17 browser tests, each on desktop and mobile viewports (Playwright)
 npm run check         # lint, typecheck, unit, and browser tests
 ```
 
 Unit tests cover every financial formula, validation summaries and next steps, practice scoring, backup round trips (merge, replace, duplicate ids, damaged and oversized files, newer formats), persona/competitor/roadmap logic, lessons, loading version-1 data, and refusal of invalid edits.
 
-The browser suite runs against the production build and covers the full journey (create, reload, coach, follow-up, canvas, pitch, reorder, preview, PDF export, duplicate, archive, delete), every project tool's core workflow including the cross-tool buttons, export → delete → import, input validation, HTML-injection and `javascript:` link safety, keyboard use of the chart and board, isolation between browser profiles, the CSP header, API rejection of malformed input, and automated accessibility checks (axe) on all 13 screens in light and dark themes with a check for sideways scrolling.
+The browser suite runs against the production build and covers the full journey (create, reload, coach, follow-up, canvas, pitch, reorder, preview, PDF export, duplicate, archive, delete), every project tool's core workflow including the cross-tool buttons, export → delete → import, input validation, HTML-injection and `javascript:` link safety, keyboard use of the chart and board, isolation between browser profiles, the CSP header, the privacy page, icon, robots.txt, sitemap and social preview image, API rejection of malformed input, and automated accessibility checks (axe) on all 14 screens in light and dark themes with a check for sideways scrolling.
 
-Last verified locally: lint clean, typecheck clean, 98/98 unit tests, 32/32 browser test runs, production build passing. CI (`.github/workflows/ci.yml`) runs the same steps.
+Last verified locally: lint clean, typecheck clean, 98/98 unit tests, 34/34 browser test runs, production build passing, `npm audit` reporting 0 vulnerabilities. CI (`.github/workflows/ci.yml`) runs the same steps.
 
 ## Security and privacy
 
-- **No accounts and no server database.** A project is readable only in the browser profile that created it. There is no shared or anonymous-writable data.
+- **No accounts and no server database.** A project is readable only in the browser profile that created it. There is no shared or anonymous-writable data. The in-app [privacy page](src/app/privacy/page.tsx) explains this to users.
+- **No tracking.** No analytics, advertising, or cookies of its own.
 - **The API key never reaches the browser.** It is read only in server code, and the health endpoint reports the mode and model name only.
 - **The coach route is bounded:** 12 requests per minute per client by default (shared by coaching and pitch practice), 20 KB body limit, strict Zod validation, a 40-second timeout, and one retry. Student text is wrapped in tags and the model is told to treat it as data, not instructions.
 - **Imports are untrusted.** Backup files are size-limited (5 MB, 200 projects) and every project is re-validated against the current schema.
@@ -144,6 +145,7 @@ Last verified locally: lint clean, typecheck clean, 98/98 unit tests, 32/32 brow
 - **The AI coach is not tested against the live API.** It is covered by tests with a stand-in client. Try it with your own key before relying on it.
 - **Rate limits are per server instance** and reset on restart. Use a shared store before running more than one instance.
 - **The CSP allows inline scripts** (see Security above).
+- **Dev tooling override:** `package.json` pins the lint tooling's copy of `minimatch` to 11.x to clear a moderate advisory (GHSA-g3hv-75wg-m249). Remove the override once `typescript-eslint` ships the fix itself.
 - **Pitch practice and the offline coach are pattern checks.** They judge length, wording, and whether expected points are mentioned. They cannot tell whether an answer is true or persuasive.
 - **Finance is a simple model:** constant price and costs, compounding monthly growth, no taxes, payment timing, or one-off costs.
 - **The board moves cards with buttons,** not drag and drop.
@@ -154,7 +156,9 @@ Last verified locally: lint clean, typecheck clean, 98/98 unit tests, 32/32 brow
 
 ## Deployment
 
-The app is a standard Next.js project and should run on Vercel or any Node host with `npm run build && npm start`. It has not been deployed. If you enable the AI coach on a public URL, anyone who finds it can spend your API credit up to the rate limit, so set a spending cap on the key first.
+The app is a standard Next.js project with no required configuration. On Vercel, import the repository and deploy with the defaults: no environment variables are needed, and the coach runs in offline mode. On any other Node host (Node 22 or newer), run `npm ci && npm run build && npm start` and set `SITE_URL` to the public address so social previews and the sitemap use it.
+
+The AI coach turns on only when **both** `AI_PROVIDER=anthropic` and `ANTHROPIC_API_KEY` are set on the server, so it cannot be enabled by accident or from the browser. If you do enable it on a public URL, anyone who finds the site can spend your API credit up to the rate limit, so set a spending cap on the key first.
 
 ## Demo walkthrough
 

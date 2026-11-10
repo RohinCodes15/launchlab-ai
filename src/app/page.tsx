@@ -142,9 +142,14 @@ export default function LandingPage() {
 
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line py-8 text-sm text-muted">
         <p>LaunchLab AI. A learning tool, not financial or legal advice.</p>
-        <Link href="/dashboard" className="underline underline-offset-4 hover:text-fg">
-          Open the dashboard
-        </Link>
+        <nav aria-label="Footer" className="flex gap-4">
+          <Link href="/privacy" className="underline underline-offset-4 hover:text-fg">
+            Privacy
+          </Link>
+          <Link href="/dashboard" className="underline underline-offset-4 hover:text-fg">
+            Open the dashboard
+          </Link>
+        </nav>
       </footer>
     </div>
   );

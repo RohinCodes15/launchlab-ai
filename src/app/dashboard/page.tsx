@@ -171,7 +171,12 @@ export default function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-5xl">Your projects</h1>
-          <p className="mt-2 text-muted">Saved in this browser only. Nothing is uploaded.</p>
+          <p className="mt-2 text-muted">
+            Saved in this browser only. Nothing is uploaded.{" "}
+            <Link href="/privacy" className="underline underline-offset-4 hover:text-fg">
+              How your data is stored
+            </Link>
+          </p>
         </div>
         <div className="flex gap-2">
           <Button onClick={openDemo}>Add demo project</Button>

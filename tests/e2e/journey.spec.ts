@@ -233,7 +233,7 @@ for (const theme of ["light", "dark"] as const) {
   test(`accessibility and layout: no axe violations or sideways scrolling (${theme})`, async ({
     page,
   }) => {
-    test.slow(); // runs axe on all 13 screens
+    test.slow(); // runs axe on all 14 screens
     await page.addInitScript((value) => localStorage.setItem("launchlab.theme", value), theme);
     const check = async (label: string) => {
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -287,6 +287,10 @@ for (const theme of ["light", "dark"] as const) {
     await openStep(page, "Learn");
     await expect(page.getByRole("button", { name: "Check answers" })).toBeVisible();
     await check("learn");
+
+    await page.goto("/privacy");
+    await expect(page.getByRole("heading", { name: "Privacy", level: 1 })).toBeVisible();
+    await check("privacy");
 
     await page.goto("/backup");
     await expect(page.getByLabel("Backup file (.json)")).toBeVisible();
