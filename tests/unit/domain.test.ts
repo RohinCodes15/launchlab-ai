@@ -163,6 +163,21 @@ describe("pitch", () => {
     );
   });
 
+  test("flags 'the first to' but not ordinary uses of 'the first'", () => {
+    expect(findUnverifiedClaims("We are the first to do this.")).toEqual(["the first to"]);
+    expect(findUnverifiedClaims("20 students sign up in the first month.")).toEqual([]);
+  });
+
+  test("the demo pitch flags none of its own hedged wording", () => {
+    const text = generateSlides(demo(), ids())
+      .map((slide) => slide.body)
+      .join("\n");
+
+    expect(findUnverifiedClaims(text)).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/first|nobody/i)]),
+    );
+  });
+
   test("moves a slide without mutating the input, and ignores impossible moves", () => {
     const slides = generateSlides(demo(), ids());
 

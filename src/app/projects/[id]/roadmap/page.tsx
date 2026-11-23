@@ -243,7 +243,12 @@ export default function RoadmapPage() {
               onChange={(e) => setTitle(e.target.value)}
               className={inputClass}
             />
-            <Button type="submit" variant="primary" disabled={room === 0 || !title.trim()}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={room === 0 || !title.trim()}
+              className="shrink-0 whitespace-nowrap"
+            >
               Add task
             </Button>
           </form>

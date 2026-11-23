@@ -10,3 +10,5 @@ export const SITE_URL = process.env.SITE_URL
 
 export const SITE_DESCRIPTION =
   "A free entrepreneurship learning app for students: shape a startup idea, test assumptions, model the money, and build a pitch. Works offline in your browser.";
+
+export const SITE_NAME = "LaunchLab AI";

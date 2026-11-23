@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 export type ChartSeries = { name: string; color: string; values: number[] };
 
@@ -11,11 +11,14 @@ interface LineChartProps {
   format: (value: number) => string;
 }
 
-const WIDTH = 640;
+// The SVG is drawn at its rendered pixel width (not scaled from a fixed viewBox), so text
+// stays at its real font size on phones. DEFAULT_WIDTH is used until it is measured.
+const DEFAULT_WIDTH = 640;
 const HEIGHT = 260;
 const PAD = { top: 16, right: 20, bottom: 30, left: 72 };
-const PLOT_W = WIDTH - PAD.left - PAD.right;
 const PLOT_H = HEIGHT - PAD.top - PAD.bottom;
+// Minimum horizontal room for one month label, in pixels.
+const MIN_LABEL_SPACING = 44;
 const TICK_COUNT = 4;
 
 /** Round tick values that cover [min, max] and always include 0. */
@@ -36,6 +39,25 @@ export function niceTicks(min: number, max: number, count: number = TICK_COUNT):
 /** Line chart with a crosshair tooltip (pointer or arrow keys), a legend, and direct end labels. */
 export function LineChart({ title, series, labels, format }: LineChartProps) {
   const [active, setActive] = useState<number | null>(null);
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const measured = Math.round(entry.contentRect.width);
+      if (measured > 0) setWidth(measured);
+    });
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, []);
+
+  const plotW = width - PAD.left - PAD.right;
+  const labelEvery = Math.max(
+    1,
+    Math.ceil((labels.length * MIN_LABEL_SPACING) / Math.max(plotW, 1)),
+  );
   const ticks = niceTicks(
     Math.min(...series.flatMap((s) => s.values)),
     Math.max(...series.flatMap((s) => s.values)),
@@ -43,11 +65,11 @@ export function LineChart({ title, series, labels, format }: LineChartProps) {
   const yMin = ticks[0];
   const yMax = ticks.at(-1) ?? 1;
   const x = (i: number) =>
-    PAD.left + (labels.length > 1 ? (i * PLOT_W) / (labels.length - 1) : PLOT_W / 2);
+    PAD.left + (labels.length > 1 ? (i * plotW) / (labels.length - 1) : plotW / 2);
   const y = (v: number) => PAD.top + PLOT_H - ((v - yMin) / (yMax - yMin || 1)) * PLOT_H;
   const path = (values: number[]) =>
     values.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-  const slot = PLOT_W / Math.max(1, labels.length - 1);
+  const slot = plotW / Math.max(1, labels.length - 1);
 
   function handleKey(event: KeyboardEvent) {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
@@ -58,14 +80,14 @@ export function LineChart({ title, series, labels, format }: LineChartProps) {
     );
   }
 
-  const leftPct = active === null ? 0 : (x(active) / WIDTH) * 100;
+  const leftPct = active === null ? 0 : (x(active) / width) * 100;
   const shift = leftPct > 70 ? "-100%" : leftPct < 30 ? "0%" : "-50%";
 
   return (
     <figure className="flex flex-col gap-3">
-      <div className="relative">
+      <div ref={boxRef} className="relative">
         <svg
-          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          viewBox={`0 0 ${width} ${HEIGHT}`}
           role="img"
           aria-label={`${title}. Use the left and right arrow keys to read each month.`}
           tabIndex={0}
@@ -78,7 +100,7 @@ export function LineChart({ title, series, labels, format }: LineChartProps) {
             <g key={tick}>
               <line
                 x1={PAD.left}
-                x2={WIDTH - PAD.right}
+                x2={width - PAD.right}
                 y1={y(tick)}
                 y2={y(tick)}
                 className={tick === 0 ? "stroke-muted" : "stroke-line"}
@@ -96,7 +118,8 @@ export function LineChart({ title, series, labels, format }: LineChartProps) {
             </g>
           ))}
           {labels.map((label, i) =>
-            i % 2 === 0 || i === labels.length - 1 ? (
+            i === labels.length - 1 ||
+            (i % labelEvery === 0 && labels.length - 1 - i >= labelEvery) ? (
               <text
                 key={label}
                 x={x(i)}

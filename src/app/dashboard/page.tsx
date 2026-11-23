@@ -179,7 +179,10 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={openDemo}>Add demo project</Button>
+          {/* The empty state offers the demo itself. */}
+          {!(ready && projects.length === 0) && (
+            <Button onClick={openDemo}>Add demo project</Button>
+          )}
           <Button variant="primary" onClick={() => setIsCreating(true)}>
             New project
           </Button>

@@ -32,7 +32,7 @@ export const DEMO_PROJECT_INPUT: {
     customerSegments:
       "First: sophomores and juniors at our school who need help in one core class and are strong in another.\nLater (untested): other schools in the district.",
     valuePropositions:
-      "Free tutoring from someone who took the same class with the same teacher.\nTeaching a subject is also a way to review it.\nHours given and received are tracked, so nobody feels used.",
+      "Free tutoring from someone who took the same class with the same teacher.\nTeaching a subject is also a way to review it.\nHours given and received are tracked, so the exchange stays fair.",
     channels:
       "Announcements in homeroom.\nPosters with a QR code near the library.\nTeachers recommending it to students who ask for extra help.",
     customerRelationships:

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Instrument_Serif } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
-import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -9,7 +9,7 @@ const display = Instrument_Serif({ variable: "--font-display", subsets: ["latin"
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "LaunchLab AI: From idea to startup", template: "%s · LaunchLab AI" },
+  title: { default: "LaunchLab AI: From idea to startup", template: `%s · ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   applicationName: "LaunchLab AI",
   openGraph: {

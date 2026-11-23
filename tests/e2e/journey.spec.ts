@@ -239,6 +239,10 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       // Next.js briefly swaps <title> while streaming metadata on client navigation; audit the settled page.
       await expect(page).toHaveTitle(/LaunchLab AI/);
+      // Measure settled colours, not a button midway through its enable/disable transition.
+      await page.waitForFunction(
+        () => !document.getAnimations().some((a) => a instanceof CSSTransition),
+      );
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations.map((v) => `${label}: ${v.id} (${v.nodes[0]?.target})`)).toEqual(
         [],
@@ -303,3 +307,45 @@ for (const theme of ["light", "dark"] as const) {
     await check("dashboard");
   });
 }
+
+test.describe("small phones (360px)", () => {
+  test.use({ viewport: { width: 360, height: 740 } });
+
+  test("no page scrolls sideways, the current tab is in view, and titles name the page", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile", "covers the small-phone viewport only");
+    const noSideways = async (label: string) => {
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow, `${label} scrolls sideways`).toBeLessThanOrEqual(0);
+    };
+
+    await page.goto("/");
+    await noSideways("landing");
+    await expect(
+      page.getByRole("button", { name: "Switch between light and dark theme" }),
+    ).toBeInViewport({ ratio: 1 });
+
+    await page.goto("/dashboard");
+    await expect(page).toHaveTitle("Your projects · LaunchLab AI");
+    await page.getByRole("button", { name: "Explore the demo project" }).click();
+    await expect(page.getByLabel("Problem statement")).toBeVisible();
+    await noSideways("idea studio");
+
+    const steps = page.getByRole("navigation", { name: "Project steps" });
+    for (const name of ["Pitch", "Finance", "Learn"]) {
+      await steps.getByRole("link", { name, exact: false }).click();
+      const current = steps.locator('[aria-current="page"]');
+      await expect(current).toContainText(name);
+      // The tab overlaps the strip's bottom border by 1px, so it is never 100% visible.
+      await expect(current).toBeInViewport({ ratio: 0.95 });
+      await expect(page).toHaveTitle(new RegExp(`^${name} · .+ · LaunchLab AI$`));
+      await noSideways(name);
+    }
+
+    await page.goto("/no-such-page");
+    await expect(page).toHaveTitle("Page not found · LaunchLab AI");
+  });
+});

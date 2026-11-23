@@ -10,6 +10,6 @@ export const buttonClass = (
   variant: keyof typeof BUTTON_VARIANTS = "secondary",
   size: "sm" | "md" = "md",
 ) =>
-  `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+  `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:cursor-not-allowed disabled:border disabled:border-dashed disabled:border-line disabled:bg-raised disabled:text-muted disabled:brightness-100 ${
     size === "sm" ? "min-h-8 px-2.5 text-sm" : "min-h-10 px-4 text-sm"
   } ${BUTTON_VARIANTS[variant]}`;

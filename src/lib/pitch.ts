@@ -101,7 +101,7 @@ export function generateSlides(project: Project, newId: () => string): Slide[] {
 const CLAIM_PATTERNS: RegExp[] = [
   /[$€£]\s?\d[\d,.]*\s?(?:k|m|bn|million|billion|thousand)?/gi,
   /\d[\d,.]*\s?(?:%|percent\b|x\b|million\b|billion\b|thousand\b)/gi,
-  /\b(?:guaranteed?|proven|everyone|everybody|nobody|no (?:real )?competit(?:ion|ors)|the (?:best|only|first)|always|never|#1|number one|revolutionary|world[- ]class)\b/gi,
+  /\b(?:guaranteed?|proven|everyone|everybody|nobody|no (?:real )?competit(?:ion|ors)|the (?:best|only)|the first (?:to|ever)|always|never|#1|number one|revolutionary|world[- ]class)\b/gi,
 ];
 
 /**
